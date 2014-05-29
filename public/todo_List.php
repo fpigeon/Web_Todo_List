@@ -6,10 +6,12 @@
 </head>
 <body>
 	<h1>TODO List</h1>
-	<ul>
 	<?php 
-	//functions
+	//variables
+	$todos = [];
+	$file_path='data/todo.txt';
 
+	//functions
 	function saveFile($filename, $list_array){
 	    if($filename == ''){
 	        $filename='data/default.txt';    
@@ -29,12 +31,12 @@
 
 	function open_file($filename){
 	    if($filename == ''){
-	        $filename='todo.txt';    
+	        $filename='data/todo.txt';    
 	    } //if user just hits enter
 
 	    if (is_readable($filename)){
 	        $handle = fopen($filename, 'r');
-	        $contents = fread($handle, filesize($filename));
+	        $contents = trim(fread($handle, filesize($filename)));
 	        fclose($handle);
 	        //echo $contents;    
 	        $arrayed = explode(PHP_EOL, $contents);
@@ -44,23 +46,31 @@
 	        echo 'Error Reading File' . PHP_EOL;
 	        return FALSE;
 	    }//file not found
-
-
-	    
 	}//end of open file
+	
+	//add new item to the list
+	
 
-	//$todos = ['eggs', 'milk', 'soda'];
-	$todos = [];
-	// echo "Enter the path and file name: ";
- 	$file_path='todo.txt';
-            //$file_items = open_file($file_path);
+ 	
+ 	//go thru the file and add to the array	
 	$file_items = open_file($file_path);
     if ($file_items !== FALSE){
 	    foreach ($file_items as $list_item) {
 	        array_push($todos, $list_item); //add to the end of the array
 	    } //end of foreach
 	} // add to the array if found
+	
+		//var_dump($_GET);
+	var_dump($_POST);
+	if (!empty($_POST['task'])){
+		//trim($_POST['task']);
+		//var_dump($_POST['task']);
+		$newTodo = $_POST['task']; //assign the variable from the post
+		$todos[] = $newTodo; // add to the array
+		saveFile($file_path, $todos); // save your file
+	}
 	?>
+	<!-- output array on screen -->
 	<ul>
 	<?php 
 	foreach ($todos as  $todo) {
@@ -78,9 +88,7 @@
         <input id="task" name="task" type="text" placeholder="Add Todo Item">
         <button type="submit">Add Item</button>
 	</form>
-	<?php
-		var_dump($_GET);
-		var_dump($_POST);
-	?>
+	
+				
 </body>
 </html>
