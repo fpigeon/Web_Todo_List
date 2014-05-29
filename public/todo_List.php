@@ -7,18 +7,21 @@
 <body>
 	<h1>TODO List</h1>
 	<ul>
-		<li>Milk</li>
-		<li>Walk the dog</li>
-		<li>Pick up kids</li>
+	<?php 
+	$todos = ['eggs', 'milk', 'soda'];
+	foreach ($todos as  $todo) {
+		echo'<li>' . $todo . '</li>';
+	} // end of for each
+	?>
 	</ul>
+	
 	<h2>Input New Todo Items</h2>
-	<form method="GET">
-		<label for="item_num">Item Number: </label>
+	<form method="POST">
+		<!-- <label for="item_num">Item Number: </label>
         <input id="item_num" name="item_num" type="text" placeholder="Todo Number">
-        <br>
+        <br> -->
         <label for="task">Task</label>
         <input id="task" name="task" type="text" placeholder="Add Todo Item">
-        <br>        
         <button type="submit">Add Item</button>
 	</form>
 	<?php
