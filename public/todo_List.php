@@ -8,9 +8,63 @@
 	<h1>TODO List</h1>
 	<ul>
 	<?php 
-	$todos = ['eggs', 'milk', 'soda'];
+	//functions
+
+	function saveFile($filename, $list_array){
+	    if($filename == ''){
+	        $filename='data/default.txt';    
+	    } //if user just hits enter
+	    $handle = fopen($filename, 'w');
+	    if (is_writeable($filename)){        
+	        foreach ($list_array as $list_item) {
+	            fwrite($handle, $list_item . PHP_EOL);
+	        }//end of foreach
+	        fclose($handle);
+	        return TRUE;
+	    } //end of ovewrite ok
+	    else {
+	        return FALSE;
+	    } // end of else
+	} //end of SaveFile
+
+	function open_file($filename){
+	    if($filename == ''){
+	        $filename='todo.txt';    
+	    } //if user just hits enter
+
+	    if (is_readable($filename)){
+	        $handle = fopen($filename, 'r');
+	        $contents = fread($handle, filesize($filename));
+	        fclose($handle);
+	        //echo $contents;    
+	        $arrayed = explode(PHP_EOL, $contents);
+	        return $arrayed; 
+	    }//end of file found
+	    else {
+	        echo 'Error Reading File' . PHP_EOL;
+	        return FALSE;
+	    }//file not found
+
+
+	    
+	}//end of open file
+
+	//$todos = ['eggs', 'milk', 'soda'];
+	$todos = [];
+	// echo "Enter the path and file name: ";
+ 	$file_path='todo.txt';
+            //$file_items = open_file($file_path);
+	$file_items = open_file($file_path);
+    if ($file_items !== FALSE){
+	    foreach ($file_items as $list_item) {
+	        array_push($todos, $list_item); //add to the end of the array
+	    } //end of foreach
+	} // add to the array if found
+	?>
+	<ul>
+	<?php 
 	foreach ($todos as  $todo) {
-		echo'<li>' . $todo . '</li>';
+		echo'<li>' . $todo . '</li>' . PHP_EOL;
 	} // end of for each
 	?>
 	</ul>
