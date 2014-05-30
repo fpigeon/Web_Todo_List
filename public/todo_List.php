@@ -48,10 +48,7 @@
 	    }//file not found
 	}//end of open file
 	
-	//add new item to the list
 	
-
- 	
  	//go thru the file and add to the array	
 	$file_items = open_file($file_path);
     if ($file_items !== FALSE){
@@ -59,8 +56,8 @@
 	        array_push($todos, $list_item); //add to the end of the array
 	    } //end of foreach
 	} // add to the array if found
-	
-		//var_dump($_GET);
+
+	//var_dump($_GET);
 	var_dump($_POST);
 	if (!empty($_POST['task'])){
 		//trim($_POST['task']);
@@ -68,13 +65,28 @@
 		$newTodo = $_POST['task']; //assign the variable from the post
 		$todos[] = $newTodo; // add to the array
 		saveFile($file_path, $todos); // save your file
+		header('Location: /todo_List.php');
+		exit(0);
 	}
+
+	//remove item
+	else if (isset($_GET['remove_item']) ){
+		 $removeItem = $_GET['remove_item'];
+		 var_dump($removeItem);
+		 unset($todos[$removeItem]);
+		 saveFile($file_path, $todos); // save your file
+		 header('Location: /todo_List.php');
+		 exit(0);
+	} //end of remove item
 	?>
+
 	<!-- output array on screen -->
 	<ul>
 	<?php 
-	foreach ($todos as  $todo) {
-		echo'<li>' . $todo . '</li>' . PHP_EOL;
+	
+	foreach ($todos as $key => $todo) {
+		//echo'<li>' . $todo . ' <a href="http://todo.dev/todo_List.php?remove_item{$key}">Remove Item</a>' . '</li>'. PHP_EOL;
+		echo "<li>$todo <a href=\"http://todo.dev/todo_List.php?remove_item=$key\">Remove Item</a></li>\n";
 	} // end of for each
 	?>
 	</ul>
@@ -89,6 +101,6 @@
         <button type="submit">Add Item</button>
 	</form>
 	
-				
+	
 </body>
 </html>
