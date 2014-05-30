@@ -40,7 +40,7 @@ function open_file($filename){
     }//file not found
 }//end of open file
 	
-//remove item
+//remove items using $_GET
 if (isset($_GET['remove_item']) ){
 	 $removeItem = $_GET['remove_item'];
 	 var_dump($removeItem);
@@ -50,8 +50,7 @@ if (isset($_GET['remove_item']) ){
 	 exit(0);
 } //end of remove item
 
-//var_dump($_GET);
-var_dump($_POST);
+//add new items using form and add to array
 if (!empty($_POST['task'])){
 	//trim($_POST['task']);
 	//var_dump($_POST['task']);
@@ -62,6 +61,7 @@ if (!empty($_POST['task'])){
 	exit(0);
 }
 
+//upload items and merge unto the array
 if (count($_FILES) > 0 && $_FILES['file1']['error'] == 0) {
 	if ($_FILES['file1']['type'] == 'text/plain'){
 		$upload_dir = '/vagrant/sites/todo.dev/public/uploads/';
