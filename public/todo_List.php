@@ -99,6 +99,7 @@
 	    foreach ($saved_file_items as $list_item) {
 	        array_push($todos, $list_item); //add to the end of the array
 	    } //end of foreach
+	    saveFile($file_path, $todos); // save your file
 	} // add to the array if found
 
 	?>
