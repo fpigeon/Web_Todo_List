@@ -5,100 +5,97 @@ $todos = [];
 $file_path='data/todo.txt';
 
 //functions	
-	function saveFile($filename, $list_array){
-	    if($filename == ''){
-	        $filename='data/default.txt';    
-	    } //if user just hits enter
-	    $handle = fopen($filename, 'w');
-	    if (is_writeable($filename)){        
-	        foreach ($list_array as $list_item) {
-	            fwrite($handle, $list_item . PHP_EOL);
-	        }//end of foreach
-	        fclose($handle);
-	        return TRUE;
-	    } //end of ovewrite ok
-	    else {
-	        return FALSE;
-	    } // end of else
-	} //end of SaveFile
+function saveFile($filename, $list_array){
+    if($filename == ''){
+        $filename='data/default.txt';    
+    } //if user just hits enter
+    $handle = fopen($filename, 'w');
+    if (is_writeable($filename)){        
+        foreach ($list_array as $list_item) {
+            fwrite($handle, $list_item . PHP_EOL);
+        }//end of foreach
+        fclose($handle);
+        return TRUE;
+    } //end of ovewrite ok
+    else {
+        return FALSE;
+    } // end of else
+} //end of SaveFile
 
-	function open_file($filename){
-	    if($filename == ''){
-	        $filename='data/todo.txt';    
-	    } //if user just hits enter
+function open_file($filename){
+    if($filename == ''){
+        $filename='data/todo.txt';    
+    } //if user just hits enter
 
-	    if (is_readable($filename)){
-	        $handle = fopen($filename, 'r');
-	        $contents = trim(fread($handle, filesize($filename)));
-	        fclose($handle);
-	        //echo $contents;    
-	        $arrayed = explode(PHP_EOL, $contents);
-	        return $arrayed; 
-	    }//end of file found
-	    else {
-	        echo 'Error Reading File' . PHP_EOL;
-	        return FALSE;
-	    }//file not found
-	}//end of open file
+    if (is_readable($filename)){
+        $handle = fopen($filename, 'r');
+        $contents = trim(fread($handle, filesize($filename)));
+        fclose($handle);
+        //echo $contents;    
+        $arrayed = explode(PHP_EOL, $contents);
+        return $arrayed; 
+    }//end of file found
+    else {
+        echo 'Error Reading File' . PHP_EOL;
+        return FALSE;
+    }//file not found
+}//end of open file
 	
-	
- 	//go thru the file and add to the array	
-	$file_items = open_file($file_path);
-    if ($file_items !== FALSE){
-	    foreach ($file_items as $list_item) {
+//remove item
+if (isset($_GET['remove_item']) ){
+	 $removeItem = $_GET['remove_item'];
+	 var_dump($removeItem);
+	 unset($todos[$removeItem]);
+	 saveFile($file_path, $todos); // save your file
+	 header('Location: /todo_List.php');
+	 exit(0);
+} //end of remove item
+
+//var_dump($_GET);
+var_dump($_POST);
+if (!empty($_POST['task'])){
+	//trim($_POST['task']);
+	//var_dump($_POST['task']);
+	$newTodo = $_POST['task']; //assign the variable from the post
+	$todos[] = $newTodo; // add to the array
+	saveFile($file_path, $todos); // save your file
+	header('Location: /todo_List.php');
+	exit(0);
+}
+
+if (count($_FILES) > 0 && $_FILES['file1']['error'] == 0) {
+	if ($_FILES['file1']['type'] == 'text/plain'){
+		$upload_dir = '/vagrant/sites/todo.dev/public/uploads/';
+	    // Grab the filename from the uploaded file by using basename
+	    $filename = basename($_FILES['file1']['name']);
+	    // Create the saved filename using the file's original name and our upload directory
+	    $saved_filename = $upload_dir . $filename;
+	    // Move the file from the temp location to our uploads directory
+	    move_uploaded_file($_FILES['file1']['tmp_name'], $saved_filename);
+
+	    //add items to the todo list
+	    $saved_file_items = open_file($saved_filename);
+	    foreach ($saved_file_items as $list_item) {
 	        array_push($todos, $list_item); //add to the end of the array
 	    } //end of foreach
-	} // add to the array if found
-
-	//var_dump($_GET);
-	var_dump($_POST);
-	if (!empty($_POST['task'])){
-		//trim($_POST['task']);
-		//var_dump($_POST['task']);
-		$newTodo = $_POST['task']; //assign the variable from the post
-		$todos[] = $newTodo; // add to the array
-		saveFile($file_path, $todos); // save your file
-		header('Location: /todo_List.php');
-		exit(0);
+	    saveFile($file_path, $todos); // save your file	
 	}
+	    // Set the destination directory for uploads
+    else{
+    	echo 'wrong file type' . PHP_EOL;
+    } 
+} //end of if count and $FILES
 
-	//remove item
-	if (isset($_GET['remove_item']) ){
-		 $removeItem = $_GET['remove_item'];
-		 var_dump($removeItem);
-		 unset($todos[$removeItem]);
-		 saveFile($file_path, $todos); // save your file
-		 header('Location: /todo_List.php');
-		 exit(0);
-	} //end of remove item
-	//saveFile($file_path, $todos); // save your file
-	//var_dump($_FILES);
-	//move uploaded files to the upload directory
-	
-	if (count($_FILES) > 0 && $_FILES['file1']['error'] == 0) {
-		if ($_FILES['file1']['type'] == 'text/plain'){
-			$upload_dir = '/vagrant/sites/todo.dev/public/uploads/';
-		    // Grab the filename from the uploaded file by using basename
-		    $filename = basename($_FILES['file1']['name']);
-		    // Create the saved filename using the file's original name and our upload directory
-		    $saved_filename = $upload_dir . $filename;
-		    // Move the file from the temp location to our uploads directory
-		    move_uploaded_file($_FILES['file1']['tmp_name'], $saved_filename);
+//go thru the file and add to the array	
+$file_items = open_file($file_path);
+if ($file_items !== FALSE){
+    foreach ($file_items as $list_item) {
+        array_push($todos, $list_item); //add to the end of the array
+    } //end of foreach
+} // add to the array if found
 
-		    //add items to the todo list
-		    $saved_file_items = open_file($saved_filename);
-		    foreach ($saved_file_items as $list_item) {
-		        array_push($todos, $list_item); //add to the end of the array
-		    } //end of foreach
-		    saveFile($file_path, $todos); // save your file	
-		}
-		    // Set the destination directory for uploads
-	    else{
-	    	echo 'wrong file type' . PHP_EOL;
-	    } 
-	} //end of if count and $FILES
+?>
 
-	?>
 <!doctype html>
 <html lang="en">
 <head>
