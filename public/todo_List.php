@@ -19,7 +19,7 @@ FUNCTION:	    saveFile
 ******************************************************************************/	
 function saveFile($filename, $list_array){
 	if($filename == ''){
-	    $filename='data/todo.txt';    
+	    $filename='data/todo.txt';
 	} //if user just hits enter
 	$handle = fopen($filename, 'w');
 	if (is_writeable($filename)){        
