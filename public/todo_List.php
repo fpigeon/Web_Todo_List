@@ -1,24 +1,25 @@
 <?php 
 //variables
-$todos = [];
-$file_path='data/todo.txt';
+$todos = [];  //array to hold todo items
+$file_path='data/todo.txt'; //local text file
+$error_msg=''; //initailize variable to hold error messages
 
 //functions	
 function saveFile($filename, $list_array){
-    if($filename == ''){
-        $filename='data/default.txt';    
-    } //if user just hits enter
-    $handle = fopen($filename, 'w');
-    if (is_writeable($filename)){        
-        foreach ($list_array as $list_item) {
-            fwrite($handle, $list_item . PHP_EOL);
-        }//end of foreach
-        fclose($handle);
-        return TRUE;
-    } //end of ovewrite ok
-    else {
-        return FALSE;
-    } // end of else
+	if($filename == ''){
+	    $filename='data/default.txt';    
+	} //if user just hits enter
+	$handle = fopen($filename, 'w');
+	if (is_writeable($filename)){        
+	    foreach ($list_array as $list_item) {
+	        fwrite($handle, $list_item . PHP_EOL);
+	    }//end of foreach
+	    fclose($handle);
+	    return TRUE;
+	} //end of ovewrite ok
+	else {
+	    return FALSE;
+	} // end of else
 } //end of SaveFile
 
 function open_file($filename){
@@ -38,30 +39,35 @@ function open_file($filename){
         echo 'Error Reading File' . PHP_EOL;
         return FALSE;
     }//file not found
-}//end of open file
+}//end of open file	
 	
-//remove items using $_GET
-if (isset($_GET['remove_item']) ){
-	 $removeItem = $_GET['remove_item'];
-	 var_dump($removeItem);
-	 unset($todos[$removeItem]);
-	 saveFile($file_path, $todos); // save your file
-	 header('Location: /todo_List.php');
-	 exit(0);
-} //end of remove item
+//go thru the local text file and add to the array
+$file_items = open_file($file_path);
+if ($file_items !== FALSE){
+    foreach ($file_items as $list_item) {
+        array_push($todos, $list_item); //add to the end of the array
+    } //end of foreach
+} // end of if
 
-//add new items using form and add to array
-if (!empty($_POST['task'])){
-	//trim($_POST['task']);
-	//var_dump($_POST['task']);
+//add new todo items from POST
+if (!empty($_POST['task'])){	
 	$newTodo = $_POST['task']; //assign the variable from the post
 	$todos[] = $newTodo; // add to the array
 	saveFile($file_path, $todos); // save your file
 	header('Location: /todo_List.php');
 	exit(0);
-}
+} //end of add item
 
-//upload items and merge unto the array
+//remove item from todo array using GET
+if (isset($_GET['remove_item']) ){
+	 $removeItem = $_GET['remove_item'];	 
+	 unset($todos[$removeItem]); //remove from todo array
+	 saveFile($file_path, $todos); // save your file
+	 header('Location: /todo_List.php');
+	 exit(0);
+} //end of remove item
+	
+//move uploaded files to the upload directory	
 if (count($_FILES) > 0 && $_FILES['file1']['error'] == 0) {
 	if ($_FILES['file1']['type'] == 'text/plain'){
 		$upload_dir = '/vagrant/sites/todo.dev/public/uploads/';
@@ -78,21 +84,11 @@ if (count($_FILES) > 0 && $_FILES['file1']['error'] == 0) {
 	        array_push($todos, $list_item); //add to the end of the array
 	    } //end of foreach
 	    saveFile($file_path, $todos); // save your file	
-	}
-	    // Set the destination directory for uploads
+	} // Set the destination directory for uploads
     else{
-    	echo 'wrong file type' . PHP_EOL;
+    	$error_msg = 'Upload error: wrong file type. Must be .txt';
     } 
-} //end of if count and $FILES
-
-//go thru the file and add to the array	
-$file_items = open_file($file_path);
-if ($file_items !== FALSE){
-    foreach ($file_items as $list_item) {
-        array_push($todos, $list_item); //add to the end of the array
-    } //end of foreach
-} // add to the array if found
-
+} //end of if to move uploaded files
 ?>
 
 <!doctype html>
@@ -103,35 +99,34 @@ if ($file_items !== FALSE){
 </head>
 <body>
 	<h1>TODO List</h1>
+	<?php 
+	if(!empty($error_msg)) {
+		echo PHP_EOL . $error_msg . PHP_EOL;
+	} //end of if error msg
+	?>
+	
 	<!-- output array on screen -->
 	<ul>
-		<?php		
-		foreach ($todos as $key => $todo) {
-			echo "<li>$todo <a href=\"http://todo.dev/todo_List.php?remove_item=$key\">Remove Item</a></li>\n";
-		} // end of for each
-		?>
+	<?php 	
+	foreach ($todos as $key => $todo) {
+		echo "<li>$todo <a href=\"http://todo.dev/todo_List.php?remove_item=$key\">Remove Item</a></li>\n";
+	} // end of for each
+	?>
 	</ul>
 	
 	<h2>Input New Todo Items</h2>
-	<form method="POST" action="/todo_List.php">
-		<!-- <label for="item_num">Item Number: </label>
-        <input id="item_num" name="item_num" type="text" placeholder="Todo Number">
-        <br> -->
+	<form method="POST" action="/todo_List.php">		
         <label for="task">Task</label>
         <input id="task" name="task" type="text" placeholder="Add Todo Item">
         <button type="submit">Add Item</button>
 	</form>
 
 	<h2>Upload File</h2>
-
 	<form method="POST" enctype="multipart/form-data">
 	    <label for="file1">File to upload: </label>
 	    <input type="file" id="file1" name="file1">
 		<br>
-	    <input type="submit" value="Upload">
-    
-	</form>
-	
-	
+	    <input type="submit" value="Upload">    
+	</form>	
 </body>
 </html>
