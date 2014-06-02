@@ -4,7 +4,19 @@ $todos = [];  //array to hold todo items
 $file_path='data/todo.txt'; //local text file
 $error_msg=''; //initailize variable to hold error messages
 
-//functions	
+/******************************************************************************
+FUNCTION:	    saveFile
+  DESCRIPTION:  saves todo items to local text file via write
+  INPUT:		
+     Parameters: $filename - path to data file where we are saving
+     			 $list_array - array that contains todo items	
+	 File: default is data/todo.txt
+  OUTPUT:
+	 Return Val: Boolean True if save successful, False if there was an error
+     Parameters:	none
+	 File: default is data/todo.txt
+  CALLS TO:	none
+******************************************************************************/	
 function saveFile($filename, $list_array){
 	if($filename == ''){
 	    $filename='data/default.txt';    
@@ -22,6 +34,18 @@ function saveFile($filename, $list_array){
 	} // end of else
 } //end of SaveFile
 
+/******************************************************************************
+FUNCTION:	    open_file
+  DESCRIPTION:  opens the default local todo and reads the content
+  INPUT:		
+     Parameters: $filename - path to data file where we are saving
+	 File: default is data/todo.txt
+  OUTPUT:
+	 Return Val: array
+     Parameters: $arrayed - array of todo items
+	 File: None
+  CALLS TO:	none
+******************************************************************************/
 function open_file($filename){
     if($filename == ''){
         $filename='data/todo.txt';    
