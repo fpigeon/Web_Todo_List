@@ -27,7 +27,7 @@ function open_file($filename){
         $filename='data/todo.txt';    
     } //if user just hits enter
 
-    if (is_readable($filename)){
+    if ( (is_readable($filename) && (filesize($filename) > 0))) {
         $handle = fopen($filename, 'r');
         $contents = trim(fread($handle, filesize($filename)));
         fclose($handle);
