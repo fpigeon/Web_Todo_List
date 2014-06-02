@@ -1,4 +1,4 @@
-<?php 
+<? 
 //variables
 $todos = [];  //array to hold todo items
 $file_path='data/todo.txt'; //local text file
@@ -122,20 +122,17 @@ if (count($_FILES) > 0 && $_FILES['file1']['error'] == 0) {
 	<title>Pigeon ToDo List</title>
 </head>
 <body>
-	<h1>TODO List</h1>
-	<?php 
-	if(!empty($error_msg)) {
-		echo PHP_EOL . $error_msg . PHP_EOL;
-	} //end of if error msg
-	?>
+	<h1>TODO List</h1>	 
+	<? if(!empty($error_msg)) : ?>
+		<?= PHP_EOL . $error_msg . PHP_EOL;?>
+	<? endif; ?>
+	
 	
 	<!-- output array on screen -->
-	<ul>
-	<?php 	
-	foreach ($todos as $key => $todo) {
-		echo "<li>$todo <a href=\"http://todo.dev/todo_List.php?remove_item=$key\">Remove Item</a></li>\n";
-	} // end of for each
-	?>
+	<ul>	 	
+		<? foreach ($todos as $key => $todo) :?>
+			<?= "<li>$todo <a href=\"http://todo.dev/todo_List.php?remove_item=$key\">Remove Item</a></li>\n"; ?>
+		<? endforeach;  ?>	
 	</ul>
 	
 	<h2>Input New Todo Items</h2>
