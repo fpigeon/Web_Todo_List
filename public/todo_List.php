@@ -1,7 +1,8 @@
 <?php 
 //variables
 $todos = [];  //array to hold todo items
-$file_path='data/todo.txt';
+$file_path='data/todo.txt'; //local text file
+$error_msg=''; //initailize variable to hold error messages
 
 //functions	
 function saveFile($filename, $list_array){
@@ -57,7 +58,7 @@ if (!empty($_POST['task'])){
 	exit(0);
 } //end of add item
 
-//remove item from todo array
+//remove item from todo array using GET
 if (isset($_GET['remove_item']) ){
 	 $removeItem = $_GET['remove_item'];	 
 	 unset($todos[$removeItem]); //remove from todo array
@@ -83,12 +84,11 @@ if (count($_FILES) > 0 && $_FILES['file1']['error'] == 0) {
 	        array_push($todos, $list_item); //add to the end of the array
 	    } //end of foreach
 	    saveFile($file_path, $todos); // save your file	
-	}
-	    // Set the destination directory for uploads
+	} // Set the destination directory for uploads
     else{
-    	echo 'wrong file type' . PHP_EOL;
+    	$error_msg = 'Upload error: wrong file type. Must be .txt';
     } 
-} //end of if count and $FILES
+} //end of if to move uploaded files
 ?>
 
 <!doctype html>
@@ -99,10 +99,15 @@ if (count($_FILES) > 0 && $_FILES['file1']['error'] == 0) {
 </head>
 <body>
 	<h1>TODO List</h1>
+	<?php 
+	if(!empty($error_msg)) {
+		echo PHP_EOL . $error_msg . PHP_EOL;
+	} //end of if error msg
+	?>
+	
 	<!-- output array on screen -->
 	<ul>
-	<?php 
-	
+	<?php 	
 	foreach ($todos as $key => $todo) {
 		echo "<li>$todo <a href=\"http://todo.dev/todo_List.php?remove_item=$key\">Remove Item</a></li>\n";
 	} // end of for each
@@ -121,10 +126,7 @@ if (count($_FILES) > 0 && $_FILES['file1']['error'] == 0) {
 	    <label for="file1">File to upload: </label>
 	    <input type="file" id="file1" name="file1">
 		<br>
-	    <input type="submit" value="Upload">
-    
-	</form>
-	
-	
+	    <input type="submit" value="Upload">    
+	</form>	
 </body>
 </html>
