@@ -131,9 +131,10 @@ if (count($_FILES) > 0 && $_FILES['file1']['error'] == 0) {
 	<!-- output array on screen -->
 	<ul>	 	
 		<? foreach ($todos as $key => $todo) :?>
-		<?php $todo = htmlspecialchars(strip_tags($todo)); ?>
+		<!-- sanitize user input -->
+		<? $todo = htmlspecialchars(strip_tags($todo)); ?>
 		<?= "<li>$todo <a href=\"http://todo.dev/todo_List.php?remove_item=$key\">Remove Item</a></li>\n"; ?>
-		<? endforeach;  ?>	
+		<? endforeach; ?>
 	</ul>
 	
 	<h2>Input New Todo Items</h2>
