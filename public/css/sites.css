@@ -1,0 +1,12 @@
+h1{
+	color: #F9D860;
+	text-decoration: underline;
+}
+body{
+	font-family: monospace;
+	background-color: #005869;
+}
+ul { 
+	list-style: square;
+	color: #009678;
+}
