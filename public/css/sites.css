@@ -1,7 +1,12 @@
-h1, h2{
+h1{
 	color: #F2F2F2;
 	text-decoration: underline;
 	font-size: 35px;
+}
+h2{
+	color: #F2F2F2;
+	text-decoration: underline;
+	font-size: 25px;
 }
 body{	
 	font-family: monospace;
@@ -26,7 +31,7 @@ a:hover {
 }
 
 .button{
-	color: BED6C9;
-	background-color: #3463BD;
-	border: #939642 
+	color: #BED6C9;
+	background-color: #E4643E;
+	border-color: #939642
 }
