@@ -119,6 +119,7 @@ if (count($_FILES) > 0 && $_FILES['file1']['error'] == 0) {
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
+	<link rel="stylesheet" href="css/sites.css">
 	<title>Pigeon ToDo List</title>
 </head>
 <body>
