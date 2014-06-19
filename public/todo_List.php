@@ -9,7 +9,7 @@ $error_msg=''; //initailize variable to hold error messages
 $todo_store = new Filestore('data/todo.txt');
 
 //go thru the local text file and add to the array
-$file_items = $todo_store->read_lines();
+$file_items = $todo_store->read();
 
 if ($file_items !== FALSE){
     foreach ($file_items as $list_item) {
@@ -21,7 +21,7 @@ if ($file_items !== FALSE){
 if (!empty($_POST['task'])){	
 	$newTodo = $_POST['task']; //assign the variable from the post
 	$todos[] = $newTodo; // add to the array	
-	$todo_store->write_lines($todos); // save your file
+	$todo_store->write($todos); // save your file
 	header('Location: /todo_List.php');
 	exit(0);
 } //end of add item
@@ -30,7 +30,7 @@ if (!empty($_POST['task'])){
 if (isset($_GET['remove_item']) ){
 	 $removeItem = $_GET['remove_item'];	 
 	 unset($todos[$removeItem]); //remove from todo array	 
-	 $todo_store->write_lines($todos); // save your file
+	 $todo_store->write($todos); // save your file
 	 header('Location: /todo_List.php');
 	 exit(0);
 } //end of remove item
@@ -47,11 +47,11 @@ if (count($_FILES) > 0 && $_FILES['file1']['error'] == 0) {
 	    move_uploaded_file($_FILES['file1']['tmp_name'], $saved_filename);
 
 	    //add items to the todo list	    
-	    $saved_file_items = $todo_store->read_lines($saved_filename);
+	    $saved_file_items = $todo_store->read($saved_filename);
 	    foreach ($saved_file_items as $list_item) {
 	        array_push($todos, $list_item); //add to the end of the array
 	    } //end of foreach	    
-	    $todo_store->write_lines($todos); // save your file	
+	    $todo_store->write($todos); // save your file	
 	} // Set the destination directory for uploads
     else{
     	$error_msg = 'Upload error: wrong file type. Must be .txt';
