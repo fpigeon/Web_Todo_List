@@ -6,7 +6,7 @@ $todos = [];  //array to hold todo item
 $error_msg=''; //initailize variable to hold error messages
 
 //create a new data store based on filestore
-$todo_store = new Filestore();
+$todo_store = new Filestore('data/todo.txt');
 
 //go thru the local text file and add to the array
 $file_items = $todo_store->read_lines();
