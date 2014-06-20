@@ -20,6 +20,9 @@ if ($file_items !== FALSE){
 //add new todo items from POST
 if (!empty($_POST['task'])){	
 	$newTodo = $_POST['task']; //assign the variable from the post
+	if (strlen($newTodo) == 0 || strlen($newTodo) > 240) {
+    	throw new Exception('$newTodo must be a string');
+    } //end of exemption
 	$todos[] = $newTodo; // add to the array	
 	$todo_store->write($todos); // save your file
 	header('Location: /todo_List.php');
