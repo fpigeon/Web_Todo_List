@@ -18,16 +18,23 @@ if ($file_items !== FALSE){
 } // end of if
 
 //add new todo items from POST
-if (!empty($_POST['task'])){	
-	$newTodo = $_POST['task']; //assign the variable from the post
-	if (strlen($newTodo) == 0 || strlen($newTodo) > 240) {
-    	throw new Exception('$newTodo must be a string');
-    } //end of exemption
-	$todos[] = $newTodo; // add to the array	
-	$todo_store->write($todos); // save your file
-	header('Location: /todo_List.php');
-	exit(0);
-} //end of add item
+try{
+	if (!empty($_POST['task'])){	
+		$newTodo = $_POST['task']; //assign the variable from the post
+		if (strlen($newTodo) == 0 || strlen($newTodo) > 240) {
+	    	throw new Exception('$newTodo must be over 0 or under 240 characters');
+	    } //end of exemption
+		$todos[] = $newTodo; // add to the array	
+		$todo_store->write($todos); // save your file
+		header('Location: /todo_List.php');
+		exit(0);
+	} //end of add item
+} // end of try
+catch(Exception $e){
+	$error_msg = $e->getMessage().PHP_EOL;
+} // end of catch
+
+
 
 //remove item from todo array using GET
 if (isset($_GET['remove_item']) ){
@@ -73,6 +80,7 @@ if (count($_FILES) > 0 && $_FILES['file1']['error'] == 0) {
 	<h1>TODO List</h1>	 
 	<? if(!empty($error_msg)) : ?>
 		<?= PHP_EOL . $error_msg . PHP_EOL;?>
+		<script>alert('Something went wrong, try again');</script>
 	<? endif; ?>	
 	
 	<!-- output array on screen -->
