@@ -1,0 +1,37 @@
+h1{
+	color: #F2F2F2;
+	text-decoration: underline;
+	font-size: 35px;
+}
+h2{
+	color: #F2F2F2;
+	text-decoration: underline;
+	font-size: 25px;
+}
+body{	
+	font-family: monospace;
+	background-color: #4D4D4D;
+	margin: 20px auto;
+    width: 600px;
+    padding: 10px;
+}
+ul, label { 
+	list-style: square;
+	color: #248CD9;
+	font-size: 20px;
+}
+a{
+	color: #82CC28;
+	text-decoration: none;
+}
+/* mouse hover over link (:hover) */
+a:hover {
+ color:#F2F2F2;
+ text-decoration: underline;
+}
+
+.button{
+	color: #BED6C9;
+	background-color: #E4643E;
+	border-color: #939642
+}
