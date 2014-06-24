@@ -1,6 +1,8 @@
 <?
 //include classes
 require_once('classes/filestore.php');
+//classes
+class InvalidInputException extends Exception { }
 //variables
 $todos = [];  //array to hold todo item
 $error_msg=''; //initailize variable to hold error messages
@@ -22,7 +24,7 @@ try{
 	if (!empty($_POST['task'])){	
 		$newTodo = $_POST['task']; //assign the variable from the post
 		if (strlen($newTodo) == 0 || strlen($newTodo) > 240) {
-	    	throw new Exception('$newTodo must be over 0 or under 240 characters');
+	    	throw new InvalidInputException('$newTodo must be over 0 or under 240 characters');
 	    } //end of exemption
 		$todos[] = $newTodo; // add to the array	
 		$todo_store->write($todos); // save your file
@@ -30,7 +32,7 @@ try{
 		exit(0);
 	} //end of add item
 } // end of try
-catch(Exception $e){
+catch(InvalidInputException $e){
 	$error_msg = $e->getMessage().PHP_EOL;
 } // end of catch
 
