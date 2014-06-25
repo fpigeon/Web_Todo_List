@@ -67,10 +67,9 @@ if(!empty($_POST)){
 		
 		//a. is item being added => add todo!
 		if (isset($_POST['task'])){
-			//ensure form entries are not empty
-			foreach ($_POST as $value) {					
-				stringLengthCheck($value);
-			}  //end of foreach		
+			//ensure form entries are not empty or over 125 chars			
+			stringLengthCheck($_POST['task']);
+			
 			$stmt = $dbc->prepare('INSERT INTO todos (task)
 	                       VALUES (:task)');		
 		    $stmt->bindValue(':task', $_POST['task'], PDO::PARAM_STR);
@@ -87,7 +86,7 @@ if(!empty($_POST)){
 		 	header('Location: /todo_list_db.php');
 			exit(0);
 		} // end of if POST remove
-			
+
      	//c. *opt Is list being uploaded? => Add todos!
 
 	} //end of try
