@@ -33,6 +33,20 @@ $dbc->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 // )';
 // // Run query, if there are errors they will be thrown as PDOExceptions
 // $dbc->exec($query);
+function read_lines($filename){
+        if ( (is_readable($filename) && (filesize($filename) > 0))) {
+            $handle = fopen($filename, 'r');
+            $contents = trim(fread($handle, filesize($filename)));
+            fclose($handle);
+            //echo $contents;    
+            $arrayed = explode(PHP_EOL, $contents);
+            return $arrayed; 
+        }//end of file found
+        else {
+            echo 'Error Reading File' . PHP_EOL;
+            return FALSE;
+        }//file not found
+    } // end of read_lines
 
 //validate string to be over zero and under 125 characters
 function stringLengthCheck($string, $min=1, $max=125){
@@ -43,7 +57,7 @@ function stringLengthCheck($string, $min=1, $max=125){
 
 function getOffset(){
 	$page = isset($_GET['page']) ? $_GET['page'] : 1;
-	return ($page - 1) * 4;
+	return ($page - 1) * LIMIT_VALUE;
 } //end of getOffset
 
 function getTodos($dbc){
@@ -54,7 +68,7 @@ function getTodos($dbc){
 	$stmt->execute();
 	$rows =  $stmt->fetchALL(PDO::FETCH_ASSOC);	
 	return $rows;	
-} //end of getUsers
+} //end of getTodos
 
 //Check if something Posted
 if(!empty($_POST)){		
@@ -69,7 +83,7 @@ if(!empty($_POST)){
 		if (isset($_POST['task'])){
 			//ensure form entries are not empty or over 125 chars			
 			stringLengthCheck($_POST['task']);
-			
+
 			$stmt = $dbc->prepare('INSERT INTO todos (task)
 	                       VALUES (:task)');		
 		    $stmt->bindValue(':task', $_POST['task'], PDO::PARAM_STR);
@@ -86,27 +100,54 @@ if(!empty($_POST)){
 		 	header('Location: /todo_list_db.php');
 			exit(0);
 		} // end of if POST remove
-
-     	//c. *opt Is list being uploaded? => Add todos!
-
 	} //end of try
 	catch (InvalidInputException $e) {
 		$error_msg = $e->getMessage().PHP_EOL;
 	} // end of catch
 }// end of if
 
+//c. *opt Is list being uploaded? => Add todos!
+if (count($_FILES) > 0 && $_FILES['file1']['error'] == 0) {
+	if ($_FILES['file1']['type'] == 'text/plain'){
+		$upload_dir = '/vagrant/sites/todo.dev/public/uploads/';
+	    // Grab the filename from the uploaded file by using basename
+	    $filename = basename($_FILES['file1']['name']);
+	    // Create the saved filename using the file's original name and our upload directory
+	    $saved_filename = $upload_dir . $filename;
+	    // Move the file from the temp location to our uploads directory
+	    move_uploaded_file($_FILES['file1']['tmp_name'], $saved_filename);
+
+	    //add items to the todo list	    
+	    $saved_file_items = read_lines($saved_filename);	    
+	    
+	    //prepare the db
+	    $stmt = $dbc->prepare('INSERT INTO todos (task)
+                   VALUES (:task)');		
+	    foreach ($saved_file_items as $task) {	        
+    		$stmt->bindValue(':task', $task, PDO::PARAM_STR);
+    		$stmt->execute();
+	    } //end of foreach			    
+	 	
+	 	//reload the page
+	 	header('Location: /todo_list_db.php');
+		exit(0);	    
+	} // Set the destination directory for uploads
+	else{
+		$error_msg = 'Upload error: wrong file type. Must be .txt';
+	} // end else 
+} //end of if to move uploaded files
+
 //Query db for total todo count
 $count = $dbc->query('SELECT count(*) FROM todos')->fetchColumn();
 
 //Determine pagination values
-$numPages = ceil($count / 4);
+$numPages = ceil($count / LIMIT_VALUE);
 $page = isset($_GET['page']) ? $_GET['page'] : 1;
 $nextPage = $page + 1;
 $prevPage = $page - 1;
 
 //Query for todos on current page
 $todos = getTodos($dbc);
-
 ?>
 <!doctype html>
 <html lang="en">
@@ -171,9 +212,10 @@ $todos = getTodos($dbc);
 		    <label for="file1">File to upload: </label>
 		    <input type="file" id="file1" name="file1">
 			<br>
-		    <input type="submit" value="Upload" class="button">    
+		    <input type="submit" value="upload" class="button">    
 		</form>
-
+		
+		<!-- hidden form for remove buttons -->
 		<form id="removeForm" method="POST" action="/todo_list_db.php">
 	    	<input id="removeId" type="hidden" name="remove" value="">
 		</form>
@@ -192,8 +234,5 @@ $todos = getTodos($dbc);
 	    	} //end if
 		}); //end of btn-remove
 	</script>
-	
-
-
 </body>
 </html>
