@@ -77,6 +77,7 @@ if(!empty($_POST)){
 	    $stmt->execute();
 	    header('Location: /todo_list_db.php');
 		exit(0);
+
 	} //end of try
 	catch (InvalidInputException $e) {
 		$error_msg = $e->getMessage().PHP_EOL;
@@ -100,15 +101,11 @@ $todos = getTodos($dbc);
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<link rel="stylesheet" href="css/sites.css">
-	<!-- JQuery -->	
-	<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+	<link rel="stylesheet" href="css/sites.css">	
 	<!-- Latest compiled and minified CSS -->
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
 	<!-- Optional theme -->
-	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
-	<!-- Latest compiled and minified JavaScript -->
-	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">	
 	<title>Database ToDo List</title>
 </head>
 <body>
@@ -151,22 +148,39 @@ $todos = getTodos($dbc);
 	</div>			
 	
 	<h2>Input New Todo Items</h2>
-	<form method="POST" action="/todo_list_db.php">		
+	<form id="addForm" method="POST" action="/todo_list_db.php">		
         <label for="task">Task</label>
         <input id="task" name="task" type="text" placeholder="Add Todo Item">
         <button type="submit" class="button">Add Item</button>
 	</form>
 
 	<h2>Upload File</h2>
-	<form method="POST" enctype="multipart/form-data">
+	<form id="uploadForm" method="POST" enctype="multipart/form-data">
 	    <label for="file1">File to upload: </label>
 	    <input type="file" id="file1" name="file1">
 		<br>
 	    <input type="submit" value="Upload" class="button">    
 	</form>
 
-	<form id="removeForm" action="/todo_list_db.php" method="POST">
+	<form id="removeForm" method="POST" action="/todo_list_db.php">
     	<input id="removeId" type="hidden" name="remove" value="">
 	</form>
+
+	<!-- JQuery -->	
+	<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>	
+	<script>
+		$('.btn-remove').click(function () {
+	    	var todoId = $(this).data('todo');
+	    	if (confirm('Are you sure you want to remove item ' + todoId + '?')) {
+	        	$('#remove-id').val(todoId);
+	        	$('#remove-form').submit();
+	    	} //end if
+		}); //end of btn-remove
+	</script>
+	
+
+
 </body>
 </html>
