@@ -9,13 +9,16 @@
 4) Determine pagination values
 5) Query for todos on current page
 */
+//classes
+class InvalidInputException extends Exception { }
 //constants
-define ('LIMIT_VALUE', 4);
+define ('LIMIT_VALUE', 10);
 //variables 
 $heading = ['id','task', 'action'];
 $isValid = false; //form validation
 $error_msg=''; //initailize variable to hold error messages
 
+// Establish DB Connection
 // Get new instance of PDO object
 $dbc = new PDO('mysql:host=127.0.0.1;dbname=codeup_todo_db', 'frank', 'password');
 
@@ -62,6 +65,33 @@ $numPages = ceil($count / 4);
 $page = isset($_GET['page']) ? $_GET['page'] : 1;
 $nextPage = $page + 1;
 $prevPage = $page - 1;
+
+//Check if something Posted
+if(!empty($_POST)){
+	try {
+		//ensure form entries are not empty
+		foreach ($_POST as $value) {					
+			stringLengthCheck($value);
+		}  //end of foreach		
+
+		// Get new instance of PDO object
+		$dbc = new PDO('mysql:host=127.0.0.1;dbname=codeup_todo_db', 'frank', 'password');
+
+		// Tell PDO to throw exceptions on error
+		$dbc->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		
+		//is item being added => add todo!
+		$stmt = $dbc->prepare('INSERT INTO todos (task)
+	                       VALUES (:task)');		
+	    $stmt->bindValue(':task', $_POST['task'], PDO::PARAM_STR);
+	    $stmt->execute();
+	    header('Location: /todo_list_db.php');
+		exit(0);
+	} //end of try
+	catch (InvalidInputException $e) {
+		$error_msg = $e->getMessage().PHP_EOL;
+	} // end of catch	
+}// end of if
 ?>
 <!doctype html>
 <html lang="en">
@@ -72,10 +102,8 @@ $prevPage = $page - 1;
 	<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
 	<!-- Latest compiled and minified CSS -->
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
-
 	<!-- Optional theme -->
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
-
 	<!-- Latest compiled and minified JavaScript -->
 	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 	<title>Database ToDo List</title>
@@ -101,7 +129,7 @@ $prevPage = $page - 1;
 					<?= "<td>$todo_value</td>"; ?>					
 				<? endforeach; ?>
 				<td>
-					<button class="btn btn-danger btn-sm pull-right btn-remove" data-todo="<?= $todo['id']; ?>">Remove</button>			
+					<button class="btn btn-danger btn-sm pull-right btn-remove" data-todo="<?= $todo['id']; ?>">Remove</button>								
 				</td>
 			</tr>							
 			<? endforeach; ?>				
@@ -134,7 +162,7 @@ $prevPage = $page - 1;
 	    <input type="submit" value="Upload" class="button">    
 	</form>
 
-	<form id="removeForm" action="todo-db.php" method="post">
+	<form id="removeForm" action="/todo_list_db.php" method="POST">
     	<input id="removeId" type="hidden" name="remove" value="">
 	</form>
 </body>
