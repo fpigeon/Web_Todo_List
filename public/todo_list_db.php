@@ -1,13 +1,11 @@
 <?php
 /*
-1) Establish DB Connection
-2) Check if something Posted
-     a. is item being added => add todo!
-     b. is item being removed => remove todo
-     c. *opt Is list being uploaded? => Add todos!
-3) Query DV for total todo count
-4) Determine pagination values
-5) Query for todos on current page
+1. Create a database, and a table to hold your TODOs.
+2. Update TODO list application to use MySQL instead of flat files.
+3. Be sure to use prepared statements for all queries that could contain user input.
+4. Add pagination. This should display 10 results per page, and when your list has over 10 records,
+ there should be buttons to allow you to navigate forward and backwards through the "pages" of todos.
+5. Abstract the MySQL connection and reusable functions to a class, if applicable.
 */
 //classes
 class InvalidInputException extends Exception { }
@@ -58,14 +56,6 @@ function getTodos($dbc){
 	return $rows;	
 } //end of getUsers
 
-//get all the todos table data into $todos array
-$todos = getTodos($dbc);
-$count = $dbc->query('SELECT count(*) FROM todos')->fetchColumn();
-$numPages = ceil($count / 4);
-$page = isset($_GET['page']) ? $_GET['page'] : 1;
-$nextPage = $page + 1;
-$prevPage = $page - 1;
-
 //Check if something Posted
 if(!empty($_POST)){
 	try {
@@ -90,8 +80,21 @@ if(!empty($_POST)){
 	} //end of try
 	catch (InvalidInputException $e) {
 		$error_msg = $e->getMessage().PHP_EOL;
-	} // end of catch	
+	} // end of catch
 }// end of if
+
+//Query db for total todo count
+$count = $dbc->query('SELECT count(*) FROM todos')->fetchColumn();
+
+//Determine pagination values
+$numPages = ceil($count / 4);
+$page = isset($_GET['page']) ? $_GET['page'] : 1;
+$nextPage = $page + 1;
+$prevPage = $page - 1;
+
+//Query for todos on current page
+$todos = getTodos($dbc);
+
 ?>
 <!doctype html>
 <html lang="en">
