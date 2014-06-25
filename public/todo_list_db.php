@@ -57,7 +57,7 @@ function getTodos($dbc){
 } //end of getUsers
 
 //Check if something Posted
-if(!empty($_POST)){
+if(!empty($_POST)){		
 	try {
 		//ensure form entries are not empty
 		foreach ($_POST as $value) {					
@@ -70,13 +70,25 @@ if(!empty($_POST)){
 		// Tell PDO to throw exceptions on error
 		$dbc->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		
-		//is item being added => add todo!
-		$stmt = $dbc->prepare('INSERT INTO todos (task)
+		//a. is item being added => add todo!
+		if ($_POST['task']){
+			$stmt = $dbc->prepare('INSERT INTO todos (task)
 	                       VALUES (:task)');		
-	    $stmt->bindValue(':task', $_POST['task'], PDO::PARAM_STR);
-	    $stmt->execute();
-	    header('Location: /todo_list_db.php');
-		exit(0);
+		    $stmt->bindValue(':task', $_POST['task'], PDO::PARAM_STR);
+		    $stmt->execute();
+		    header('Location: /todo_list_db.php');
+			exit(0);	
+		} //end if POST addForm
+
+		//b. is item being removed => remove todo
+		if ($_POST['remove']){
+			$stmt = $dbc->prepare('DELETE FROM todos WHERE id = :ID');		
+		    $stmt->bindValue(':ID', $_POST['todoId'], PDO::PARAM_INT);
+		    $stmt->execute();
+		    header('Location: /todo_list_db.php');
+			exit(0);
+		} // end of if POST remove	
+     	//c. *opt Is list being uploaded? => Add todos!
 
 	} //end of try
 	catch (InvalidInputException $e) {
@@ -109,63 +121,65 @@ $todos = getTodos($dbc);
 	<title>Database ToDo List</title>
 </head>
 <body>
-	<h1>Database Todo List</h1>
-	<!-- error message if present --> 
-	<? if(!empty($error_msg)) : ?>
-		<?= PHP_EOL . $error_msg . PHP_EOL;?>
-		<script>alert('Something went wrong, try again');</script>
-	<? endif; ?>	
-	<table class="table table-striped table-hover">
-			<!-- heading row -->
-			<tr>			
-				<? foreach ($heading as $value) :?>
-					<th><?= $value ?> </th>								
-				<? endforeach;  ?>			
-			</tr>
-			<!-- data from table -->
-			<? foreach ($todos as $todo) :?>
-			<tr>				
-				<? foreach ($todo as $key => $todo_value): ?>
-					<?= "<td>$todo_value</td>"; ?>					
-				<? endforeach; ?>
-				<td>
-					<button class="btn btn-danger btn-sm pull-right btn-remove" data-todo="<?= $todo['id']; ?>">Remove</button>								
-				</td>
-			</tr>							
-			<? endforeach; ?>				
-	</table>
-	<div id="pagination">
-		<? if ($page == 1) : ?>
-			<a class="btn-primary btn btn-lg" disabled="disabled" href="?page=<?= $prevPage; ?>" > &larr; Previous</a>
-			<a class="btn btn-primary btn-lg active" href="?page=<?= $nextPage; ?>" >Next &rarr;</a>		
-		<? elseif ($page == $numPages) : ?>
-			<a class="btn btn-primary btn-lg active" href="?page=<?= $prevPage; ?>" > &larr; Previous</a>
-			<a class="btn-primary btn btn-lg" disabled="disabled" href="?page=<?= $nextPage; ?>" >Next &rarr;</a>		
-		<? else: ?>
-			<a class="btn btn-primary btn-lg active" href="?page=<?= $prevPage; ?>" > &larr; Previous</a>
-			<a class="btn btn-primary btn-lg active" href="?page=<?= $nextPage; ?>" >Next &rarr;</a>
-		<? endif; ?>
-	</div>			
+	<div class="container">
+		<h1>Database Todo List</h1>
+		<!-- error message if present --> 
+		<? if(!empty($error_msg)) : ?>
+			<?= PHP_EOL . $error_msg . PHP_EOL;?>
+			<script>alert('Something went wrong, try again');</script>
+		<? endif; ?>	
+		<table class="table table-striped table-hover">
+				<!-- heading row -->
+				<tr>			
+					<? foreach ($heading as $value) :?>
+						<th><?= $value ?> </th>								
+					<? endforeach;  ?>			
+				</tr>
+				<!-- data from table -->
+				<? foreach ($todos as $todo) :?>
+				<tr>				
+					<? foreach ($todo as $key => $todo_value): ?>
+						<?= "<td>$todo_value</td>"; ?>					
+					<? endforeach; ?>
+					<td>
+						<button class="btn btn-danger btn-sm pull-right btn-remove" data-todo="<?= $todo['id']; ?>">Remove</button>								
+					</td>
+				</tr>							
+				<? endforeach; ?>				
+		</table>
+		<div id="pagination">
+			<? if ($page == 1) : ?>
+				<a class="btn-primary btn btn-lg" disabled="disabled" href="?page=<?= $prevPage; ?>" > &larr; Previous</a>
+				<a class="btn btn-primary btn-lg active" href="?page=<?= $nextPage; ?>" >Next &rarr;</a>		
+			<? elseif ($page == $numPages) : ?>
+				<a class="btn btn-primary btn-lg active" href="?page=<?= $prevPage; ?>" > &larr; Previous</a>
+				<a class="btn-primary btn btn-lg" disabled="disabled" href="?page=<?= $nextPage; ?>" >Next &rarr;</a>		
+			<? else: ?>
+				<a class="btn btn-primary btn-lg active" href="?page=<?= $prevPage; ?>" > &larr; Previous</a>
+				<a class="btn btn-primary btn-lg active" href="?page=<?= $nextPage; ?>" >Next &rarr;</a>
+			<? endif; ?>
+		</div>			
+		
+		<h2>Input New Todo Items</h2>
+		<form id="addForm" method="POST" action="/todo_list_db.php">		
+	        <label for="task">Task</label>
+	        <input id="task" name="task" type="text" placeholder="Add Todo Item">
+	        <button type="submit" class="button">Add Item</button>
+		</form>
+
+		<h2>Upload File</h2>
+		<form id="uploadForm" method="POST" enctype="multipart/form-data">
+		    <label for="file1">File to upload: </label>
+		    <input type="file" id="file1" name="file1">
+			<br>
+		    <input type="submit" value="Upload" class="button">    
+		</form>
+
+		<form id="removeForm" method="POST" action="/todo_list_db.php">
+	    	<input id="removeId" type="hidden" name="remove" value="">
+		</form>
+	</div>
 	
-	<h2>Input New Todo Items</h2>
-	<form id="addForm" method="POST" action="/todo_list_db.php">		
-        <label for="task">Task</label>
-        <input id="task" name="task" type="text" placeholder="Add Todo Item">
-        <button type="submit" class="button">Add Item</button>
-	</form>
-
-	<h2>Upload File</h2>
-	<form id="uploadForm" method="POST" enctype="multipart/form-data">
-	    <label for="file1">File to upload: </label>
-	    <input type="file" id="file1" name="file1">
-		<br>
-	    <input type="submit" value="Upload" class="button">    
-	</form>
-
-	<form id="removeForm" method="POST" action="/todo_list_db.php">
-    	<input id="removeId" type="hidden" name="remove" value="">
-	</form>
-
 	<!-- JQuery -->	
 	<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
 	<!-- Latest compiled and minified JavaScript -->
