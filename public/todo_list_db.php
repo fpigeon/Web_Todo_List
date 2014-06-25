@@ -59,11 +59,6 @@ function getTodos($dbc){
 //Check if something Posted
 if(!empty($_POST)){		
 	try {
-		//ensure form entries are not empty
-		foreach ($_POST as $value) {					
-			stringLengthCheck($value);
-		}  //end of foreach		
-
 		// Get new instance of PDO object
 		$dbc = new PDO('mysql:host=127.0.0.1;dbname=codeup_todo_db', 'frank', 'password');
 
@@ -71,7 +66,11 @@ if(!empty($_POST)){
 		$dbc->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		
 		//a. is item being added => add todo!
-		if ($_POST['task']){
+		if (isset($_POST['task'])){
+			//ensure form entries are not empty
+			foreach ($_POST as $value) {					
+				stringLengthCheck($value);
+			}  //end of foreach		
 			$stmt = $dbc->prepare('INSERT INTO todos (task)
 	                       VALUES (:task)');		
 		    $stmt->bindValue(':task', $_POST['task'], PDO::PARAM_STR);
@@ -81,13 +80,14 @@ if(!empty($_POST)){
 		} //end if POST addForm
 
 		//b. is item being removed => remove todo
-		if ($_POST['remove']){
+		if (isset($_POST['remove'])){
 			$stmt = $dbc->prepare('DELETE FROM todos WHERE id = :ID');		
-		    $stmt->bindValue(':ID', $_POST['todoId'], PDO::PARAM_INT);
+		    $stmt->bindValue(':ID', $_POST['remove'], PDO::PARAM_INT);
 		    $stmt->execute();
-		    header('Location: /todo_list_db.php');
+		 	header('Location: /todo_list_db.php');
 			exit(0);
-		} // end of if POST remove	
+		} // end of if POST remove
+			
      	//c. *opt Is list being uploaded? => Add todos!
 
 	} //end of try
@@ -188,8 +188,8 @@ $todos = getTodos($dbc);
 		$('.btn-remove').click(function () {
 	    	var todoId = $(this).data('todo');
 	    	if (confirm('Are you sure you want to remove item ' + todoId + '?')) {
-	        	$('#remove-id').val(todoId);
-	        	$('#remove-form').submit();
+	        	$('#removeId').val(todoId);
+	        	$('#removeForm').submit();
 	    	} //end if
 		}); //end of btn-remove
 	</script>
